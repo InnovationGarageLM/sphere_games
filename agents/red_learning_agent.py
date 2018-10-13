@@ -4,7 +4,7 @@ import numpy as np
 import rospy
 from std_msgs.msg import Bool, Int16
 from geometry_msgs.msg import Twist, Point, PointStamped, Vector3
-import utils.arena as util
+import host.utilities as util
 
 # Global variables
 red_center = Point()
