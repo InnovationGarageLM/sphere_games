@@ -71,17 +71,19 @@ class SpheroTracker():
         print("Good to go! OpenCV Version: " + version[0] + "." + version[1])
 
     def convert_pixels_mm(self, pt_pixels, time):
+        # problem is this forces values to int
+        #pt_mm = utilities.pixels_2_mm(pt_pixels)
+
         x = pt_pixels.x - constants.ORIGIN_PIXELS.x
         y = -(pt_pixels.y - constants.ORIGIN_PIXELS.y) # flip so negative is down
-
         # Scale
         x_mm = x * constants.COVERT_PIXEL2MM
         y_mm = y * constants.COVERT_PIXEL2MM
 
         p = PointStamped()
         p.header.stamp = time
-        p.point.x = x
-        p.point.y = y
+        p.point.x = x_mm
+        p.point.y = y_mm
         return p
 
     def update_time(self):
