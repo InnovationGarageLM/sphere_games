@@ -15,7 +15,7 @@ print("Starting Capture the Flag")
 red_odometry = PointStamped()
 blue_odometry = PointStamped()
 red_acceleration = 0
-blue_accelteration = 0
+blue_acceleration = 0
 red_center = Point()
 blue_center = Point()
 red_pos_mm = PointStamped()
@@ -255,7 +255,7 @@ def pub_sub_init():
         pub_red_vel.publish(red_velocity)
         pub_blue_vel.publish(blue_velocity)
         pub_red_accel.publish(red_acceleration)
-        pub_blue_accel.publish(blue_accelteration)
+        pub_blue_accel.publish(blue_acceleration)
         pub_red_center.publish(red_center)
         pub_blue_center.publish(blue_center)
         pub_red_pos_mm.publish(red_pos_mm)
