@@ -231,10 +231,10 @@ class simple_agent(object):
         their_base_px = self.their_base_px
         my_base = self.my_base
 
-        p1 = Point(0,-400, 0)
+        p1 = Point(0,their_base.y/2, 0)
         p1_px = util.mm_2_pixel(p1)
 
-        p2 = Point(400, 0, 0)
+        p2 = Point(their_base.x/2, 0, 0)
         p2_px = util.mm_2_pixel(p2)
 
         if(their_base.x > my_base.x):

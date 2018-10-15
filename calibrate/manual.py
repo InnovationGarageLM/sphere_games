@@ -67,7 +67,7 @@ class Mover:
     def reset(self):
         print("Reset heading")
         self.pub_reset.publish(Int16(0)) # value ignored
-        self._direct = self._vel = 0
+        self._direct = self._speed = 0
     def setpos(self):
         #No idea what value to use!
         print("Set position to (0,0)")
