@@ -1,5 +1,5 @@
 import cv2
-import constants
+import host.constants as constants
 import numpy as np
 from geometry_msgs.msg import Point
 

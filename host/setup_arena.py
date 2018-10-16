@@ -5,7 +5,7 @@ import sys
 import socket
 import rosgraph
 
-import utilities as util
+import host.utilities as util
 
 
 class ArenaSetup(object):
