@@ -122,8 +122,8 @@ class SpheroTracker():
             self.game_state = 0
             self.start = None
             self.time_elapsed = 0
-            self.score['red'] = 0
-            self.score['blue'] = 0
+            self.score['red'] = self.score['blue'] = 0
+            self.flag['red'] = self.flag['blue'] = False
 
     def init_publishers(self):
         self.pub_red_center     = rospy.Publisher('/arena/red_sphero/center', Point, queue_size=1)
@@ -299,7 +299,6 @@ class SpheroTracker():
         return extracted
 
     def update_locations(self, blue_pt, red_pt, stamp):
-
         # Return Sphero locations
         if(not red_pt is None):
             #red_pt = self.filter('red', red_pt)
