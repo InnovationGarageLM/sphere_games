@@ -17,7 +17,7 @@ class SpheroTracker(BaseTracker):
     Updated Tracker for Spheros
     '''
 
-    def __init__(self, tracked_ids = ['red_node', 'blue_node']):
+    def __init__(self, tracked_ids = ['red_sphero', 'blue_sphero']):
 
         super(SpheroTracker, self).__init__(tracked_ids=tracked_ids)
 
@@ -35,6 +35,8 @@ class SpheroTracker(BaseTracker):
         self.running_average = {}
         self.last_good_value = {}
         self.reset_filter_count = {}
+
+        self.pub_mask = {}
 
         # Whether reference frame was initalized
         self.initialized = False

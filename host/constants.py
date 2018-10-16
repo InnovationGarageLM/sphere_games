@@ -4,7 +4,7 @@ import numpy as np
 # Game runs for 5 minutes
 TOTAL_ALLOWED_TIME = 300 # Seconds
 
-SIMULATOR = True
+SIMULATOR = False
 
 if(not SIMULATOR):
     # Attribute of camera image
