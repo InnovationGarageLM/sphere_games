@@ -14,8 +14,8 @@ if(not SIMULATOR):
     # arena and camera positions
     ORIGIN_PIXELS = Point(619, 501, 0)
     BASE = {}
-    BASE['red_sphero'] = Point(390, 749, 0)
-    BASE['blue_sphero'] = Point(862, 249, 0)
+    BASE['red_sphero'] = Point(241, 872, 0)
+    BASE['blue_sphero'] = Point(1003, 101, 0)
 
     ARENA_WIDTH_PIXELS = 1021 - 205 # assumed square
     ARENA_WIDTH_MM = 1143           # assumed square

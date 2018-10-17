@@ -1,6 +1,6 @@
-import simple_agent
+import simpleagent
 
-b = simple_agent.simple_agent('blue_sphero', opponent='red_sphero')
+b = simpleagent.SimpleAgent('blue_sphero', opponent='red_sphero')
 
 b.setup_ros()
 
