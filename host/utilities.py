@@ -1,5 +1,6 @@
 import cv2
-import host.constants as constants
+import constants
+
 import numpy as np
 from geometry_msgs.msg import Point
 
@@ -78,6 +79,8 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
         game_text = "Running"
     elif (game_state == 2):
         game_text = "Game Over"
+    elif (game_state == 3):
+        game_text = "Test Mode"
     else:
         game_text = "ERROR"
 
@@ -93,8 +96,13 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
 
     # Valid Game Area
     cv2.rectangle(arena_img,
-                  (constants.ARENA_BOUNDS['left'], constants.ARENA_BOUNDS['top']), (constants.ARENA_BOUNDS['right'], constants.ARENA_BOUNDS['bottom']),
+                  (constants.ARENA_BOUNDS['left'], constants.ARENA_BOUNDS['top']),
+                  (constants.ARENA_BOUNDS['right'], constants.ARENA_BOUNDS['bottom']),
                   (255, 255, 255))
+    cv2.rectangle(arena_img,
+                  (constants.ARENA_BOUNDS['left'], constants.ARENA_BOUNDS['top']),
+                  (constants.ARENA_BOUNDS['right'], constants.ARENA_BOUNDS['bottom']),
+                  (0, 255, 0))
 
 
     # Time Remaining
@@ -105,8 +113,8 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
                 fontColor,
                 lineType)
 
-    if(center['red'] is not None):
-        red_position = 'Red (' + str(int(center['red'].x)) + ', ' + str(int(center['red'].y)) + ')'
+    if(center['red_sphero'] is not None):
+        red_position = 'Red (' + str(int(center['red_sphero'].x)) + ', ' + str(int(center['red_sphero'].y)) + ')'
     else:
         red_position = "Red not found"
 
@@ -118,8 +126,8 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
                 (0, 0, 255),
                 lineType)
 
-    if (center['blue'] is not None):
-        blue_position = 'Blue (' + str(int(center['blue'].x)) + ', ' + str(int(center['blue'].y)) + ')'
+    if (center['blue_sphero'] is not None):
+        blue_position = 'Blue (' + str(int(center['blue_sphero'].x)) + ', ' + str(int(center['blue_sphero'].y)) + ')'
     else:
         blue_position = "Blue not found"
 
@@ -131,14 +139,14 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
                 lineType)
 
     # Score Information
-    cv2.putText(arena_img, 'Red Team: ' + str(score['red']),
+    cv2.putText(arena_img, 'Red Team: ' + str(score['red_sphero']),
                 (1050, 910),
                 font,
                 fontScale,
                 (0, 0, 255),
                 lineType)
 
-    cv2.putText(arena_img, 'Blue Team: ' + str(score['blue']),
+    cv2.putText(arena_img, 'Blue Team: ' + str(score['blue_sphero']),
                 (780, 910),
                 font,
                 fontScale,
@@ -149,32 +157,32 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
     cv2.circle(arena_img, (constants.ORIGIN_PIXELS.x, constants.ORIGIN_PIXELS.y), 3, (255, 255, 255), -1)
 
     # Sphero Locations
-    if(center['red'] is not None):
-        cv2.circle(arena_img, (int(center['red'].x), int(center['red'].y)), 10, (0, 0, 255), thickness=2)
+    if(center['red_sphero'] is not None):
+        cv2.circle(arena_img, (int(center['red_sphero'].x), int(center['red_sphero'].y)), 10, (0, 0, 255), thickness=2)
 
-        if (flag['red']):
-            cv2.circle(arena_img, (int(center['red'].x), int(center['red'].y)), 8, (255, 0, 0), thickness=-1)
+        if (flag['red_sphero']):
+            cv2.circle(arena_img, (int(center['red_sphero'].x), int(center['red_sphero'].y)), 8, (255, 0, 0), thickness=-1)
 
-    if(center['blue'] is not None):
-        cv2.circle(arena_img, (int(center['blue'].x), int(center['blue'].y)), 10, (255, 0, 0), thickness=2)
+    if(center['blue_sphero'] is not None):
+        cv2.circle(arena_img, (int(center['blue_sphero'].x), int(center['blue_sphero'].y)), 10, (255, 0, 0), thickness=2)
 
-        if (flag['blue']):
-            cv2.circle(arena_img, (int(center['blue'].x), int(center['blue'].y)), 8, (0, 0, 255), thickness=-1)
+        if (flag['blue_sphero']):
+            cv2.circle(arena_img, (int(center['blue_sphero'].x), int(center['blue_sphero'].y)), 8, (0, 0, 255), thickness=-1)
 
 
     # Base Locations
-    if (not flag['blue']):
+    if (not flag['blue_sphero']):
         thickness = -1
     else:
         thickness = 2
 
-    cv2.circle(arena_img, (base['red'].x, base['red'].y), 10, (0, 0, 255), thickness=thickness)
+    cv2.circle(arena_img, (base['red_sphero'].x, base['red_sphero'].y), 10, (0, 0, 255), thickness=thickness)
 
-    if (not flag['red']):
+    if (not flag['red_sphero']):
         thickness = -1
     else:
         thickness = 2
 
-    cv2.circle(arena_img, (base['blue'].x, base['blue'].y), 10, (255, 0, 0), thickness=thickness)
+    cv2.circle(arena_img, (base['blue_sphero'].x, base['blue_sphero'].y), 10, (255, 0, 0), thickness=thickness)
 
     return arena_img

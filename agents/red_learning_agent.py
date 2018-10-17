@@ -197,6 +197,8 @@ def learning_agent():
                 start_msg_shown = False
                 game_start_msg_shown = True
                 game_end_msg_shown = False
+            Q_learning()
+            pub_red_cmd.publish(red_twist)
 
         rate.sleep()
 

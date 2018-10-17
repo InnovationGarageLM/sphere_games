@@ -184,6 +184,7 @@ class simple_agent(object):
 
                 self.go_to_their_base()
                 self.go_to_my_base()
+                self.stop_sphero()
             elif(self.game_state == 2): # Game Over
                 if (not game_end_msg_shown):
                     print("Game Ended")
@@ -199,27 +200,43 @@ class simple_agent(object):
                     game_end_msg_shown = False
                 self.go_to_their_base()
                 self.go_to_my_base()
+                self.stop_sphero()
 
             rate.sleep()
 
+    def stop_sphero(self):
+        t = Twist()
+        t.linear = Vector3(0, 0, 0)
+        t.angular = Vector3(0, 0, 0)
+
+        self.do_movement(t)
+
     def go_to_my_base(self):
 
+        print("Going to my base")
         my_base = self.my_base
         my_base_px = self.my_base_px
-        my_base = self.my_base
+        their_base = self.their_base
 
-        p1 = Point(0,-300, 0)
+
+        p1 = Point(0,their_base.y/2, 0)
         p1_px = util.mm_2_pixel(p1)
 
-        p2 = Point(300, 0, 0)
+        p2 = Point(their_base.x/2, 0, 0)
         p2_px = util.mm_2_pixel(p2)
 
-        if(my_base.x > my_base.x):
+        p3 = Point(0,my_base.y/2, 0)
+        p3_px = util.mm_2_pixel(p3)
+
+        p4 = Point(my_base.x/2, 0, 0)
+        p4_px = util.mm_2_pixel(p4)
+
+        if(their_base.x > my_base.x):
             self.go_to_position(p1, p1_px, self.end_early)
-            self.go_to_position(p2, p2_px, self.end_early)
+            self.go_to_position(p4, p4_px, self.end_early)
 
         else:
-            self.go_to_position(p2, p2_px, self.end_early)
+            self.go_to_position(p4, p4_px, self.end_early)
             self.go_to_position(p1, p1_px, self.end_early)
 
         self.go_to_position(my_base, my_base_px, self.end_early)
@@ -227,23 +244,32 @@ class simple_agent(object):
 
     def go_to_their_base(self):
 
+        print("Going to their base")
+
         their_base = self.their_base
         their_base_px = self.their_base_px
         my_base = self.my_base
 
-        p1 = Point(0,-400, 0)
+        p1 = Point(0,their_base.y/2, 0)
         p1_px = util.mm_2_pixel(p1)
 
-        p2 = Point(400, 0, 0)
+        p2 = Point(their_base.x/2, 0, 0)
         p2_px = util.mm_2_pixel(p2)
 
+        p3 = Point(0,my_base.y/2, 0)
+        p3_px = util.mm_2_pixel(p3)
+
+        p4 = Point(my_base.x/2, 0, 0)
+        p4_px = util.mm_2_pixel(p4)
+
+
         if(their_base.x > my_base.x):
+            self.go_to_position(p4, p4_px, self.end_early)
             self.go_to_position(p1, p1_px, self.end_early)
-            self.go_to_position(p2, p2_px, self.end_early)
 
         else:
-            self.go_to_position(p2, p2_px, self.end_early)
             self.go_to_position(p1, p1_px, self.end_early)
+            self.go_to_position(p4, p4_px, self.end_early)
 
         self.go_to_position(their_base, their_base_px, self.end_early)
 
