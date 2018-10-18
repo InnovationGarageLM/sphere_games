@@ -60,13 +60,13 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
 
     arena_img = img.copy()
     font = cv2.FONT_HERSHEY_SIMPLEX
-    bottomLeftCornerOfText = (10, 40)
-    fontScale = 1
+    fontScale = .6
     fontColor = (255, 255, 255)
     lineType = 2
+    line_height = 25
 
     cv2.putText(arena_img, 'LM Autonomy Hackathon',
-                bottomLeftCornerOfText,
+                (10,line_height),
                 font,
                 fontScale,
                 fontColor,
@@ -84,8 +84,16 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
     else:
         game_text = "ERROR"
 
-    cv2.putText(arena_img, 'Status: ' + game_text,
-                (10, 870),
+
+    cv2.putText(arena_img, 'Status: ',
+                (10, constants.PICTURE_SIZE[1] - 4*line_height),
+                font,
+                fontScale,
+                fontColor,
+                lineType)
+
+    cv2.putText(arena_img, game_text,
+                (30, constants.PICTURE_SIZE[1] - 3*line_height),
                 font,
                 fontScale,
                 fontColor,
@@ -106,48 +114,110 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
 
 
     # Time Remaining
-    cv2.putText(arena_img, 'Time Remaining: ' + str(constants.TOTAL_ALLOWED_TIME - time_elapsed) + ' s',
-                (10, 910),
+    cv2.putText(arena_img, 'Time Left: ',
+                (10, constants.PICTURE_SIZE[1] - 2*line_height),
                 font,
                 fontScale,
                 fontColor,
                 lineType)
 
+    # Time Remaining
+    cv2.putText(arena_img, str(int(constants.TOTAL_ALLOWED_TIME - time_elapsed)) + ' s',
+                (30, constants.PICTURE_SIZE[1] - line_height),
+                font,
+                fontScale,
+                fontColor,
+                lineType)
+
+    left_column = 1080
+
+    # Position Information
+    cv2.putText(arena_img, "Position Info",
+                (left_column, 2*line_height),
+                font,
+                fontScale,
+                (255, 255, 255),
+                lineType)
+
     if(center['red_sphero'] is not None):
-        red_position = 'Red (' + str(int(center['red_sphero'].x)) + ', ' + str(int(center['red_sphero'].y)) + ')'
+        center_mm = pixels_2_mm(center['red_sphero'])
+        red_position    = '(' + str(int(center['red_sphero'].x)) + ', ' + str(int(center['red_sphero'].y)) + ') px'
+        red_position_mm = '(' + str(int(center_mm.x)) + ', ' + str(int(center_mm.y)) + ') mm'
     else:
         red_position = "Red not found"
+        red_position_mm = "Red not found"
+
+    # Red Position Information
+    cv2.putText(arena_img, "Red",
+                (left_column, 4*line_height),
+                font,
+                fontScale,
+                (0, 0, 255),
+                lineType)
 
     # Position Information
     cv2.putText(arena_img, red_position,
-                (1000, 40),
+                (left_column, 5*line_height),
+                font,
+                fontScale,
+                (0, 0, 255),
+                lineType)
+
+    # Position Information
+    cv2.putText(arena_img, red_position_mm,
+                (left_column, 6*line_height),
                 font,
                 fontScale,
                 (0, 0, 255),
                 lineType)
 
     if (center['blue_sphero'] is not None):
-        blue_position = 'Blue (' + str(int(center['blue_sphero'].x)) + ', ' + str(int(center['blue_sphero'].y)) + ')'
+        center_mm = pixels_2_mm(center['blue_sphero'])
+        blue_position    = '(' + str(int(center['blue_sphero'].x)) + ', ' + str(int(center['blue_sphero'].y)) + ') px'
+        blue_position_mm = '(' + str(int(center_mm.x)) + ', ' + str(int(center_mm.y)) + ') mm'
     else:
         blue_position = "Blue not found"
+        blue_position_mm = "Blue not found"
+
+    cv2.putText(arena_img, "Blue",
+                (left_column, 8 * line_height),
+                font,
+                fontScale,
+                (255, 0, 0),
+                lineType)
 
     cv2.putText(arena_img, blue_position,
-                (600, 40),
+                (left_column, 9*line_height),
+                font,
+                fontScale,
+                (255, 0, 0),
+                lineType)
+
+    cv2.putText(arena_img, blue_position_mm,
+                (left_column, 10*line_height),
                 font,
                 fontScale,
                 (255, 0, 0),
                 lineType)
 
     # Score Information
+    # Score Information
+    cv2.putText(arena_img, 'Scores:',
+                (left_column, constants.PICTURE_SIZE[1] - 7 * line_height),
+                font,
+                fontScale,
+                (255, 255, 255),
+                lineType)
+
     cv2.putText(arena_img, 'Red Team: ' + str(score['red_sphero']),
-                (1050, 910),
+                (left_column, constants.PICTURE_SIZE[1] - 5 * line_height),
                 font,
                 fontScale,
                 (0, 0, 255),
                 lineType)
 
     cv2.putText(arena_img, 'Blue Team: ' + str(score['blue_sphero']),
-                (780, 910),
+                (left_column, constants.PICTURE_SIZE[1] - 3 * line_height),
                 font,
                 fontScale,
                 (255, 0, 0),

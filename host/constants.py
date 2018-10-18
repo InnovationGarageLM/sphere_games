@@ -31,7 +31,7 @@ else:
     BASE['red_sphero'] = Point(1392, 114, 0)
     BASE['blue_sphero'] = Point(514, 981, 0)
 
-    ARENA_WIDTH_PIXELS = 1416 - 498  # assumed square
+    ARENA_WIDTH_PIXELS = 1027 - 212  # assumed square
     ARENA_WIDTH_MM = 1143  # assumed square
     WALL_TO_BASE = 70  # Assume square, and that bases are in corners, fudge factor included
 

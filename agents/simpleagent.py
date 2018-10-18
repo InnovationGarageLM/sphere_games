@@ -18,6 +18,7 @@ class SimpleAgent(object):
 
         self.my_position = None
         self.my_velocity = None
+        self.my_velocity_mag = None
         self.my_accel = 0
 
         self.flag = False
@@ -35,7 +36,7 @@ class SimpleAgent(object):
         self.start_time = time.time()
 
         # Control Parameters
-        self.Kp = .1;
+        self.Kp = .2;
         self.Ki = .001;
         self.Kd = .1;
 
@@ -89,6 +90,8 @@ class SimpleAgent(object):
 
     def set_velocity(self, data):
         self.my_velocity = data
+        if(data is not None):
+            self.my_velocity_mag = np.sqrt(data.point.x ** 2 + data.point.y ** 2)
 
     def set_accel(self, accel):
         self.my_accel = accel.data
@@ -134,10 +137,10 @@ class SimpleAgent(object):
         return False
 
     def check_if_stuck(self):
-        if(self.cmd_vel is None):
+        if(self.cmd_vel is None or self.my_velocity is None):
             return False
 
-        if(self.cmd_vel.linear.x > 0):
+        if(self.cmd_vel.linear.x > 10):
             if(self.my_velocity.point.x == 0 and self.my_velocity.point.y == 0):
                 curr_time = time.time()
                 if(self.stuck is None):
@@ -499,7 +502,10 @@ class SimpleAgent(object):
                 accumulated_error += linear_error
 
             # Control Parameters
-            vel = linear_error * self.Kp #+ accumulated_error*self.Ki
+            vel = linear_error * self.Kp
+
+            if(self.my_velocity_mag is not None):
+                vel = vel - self.Kd * self.my_velocity_mag
 
             if(vel > self.MAX_SPEED):
                 vel = self.MAX_SPEED
