@@ -21,7 +21,7 @@ class SimpleAgent(object):
         self.my_velocity_mag = None
         self.my_accel = 0
 
-        self.flag = False
+        self.flag = None
         self.flag_change = False
         self.game_state = None
         self.game_over = None
@@ -34,6 +34,8 @@ class SimpleAgent(object):
 
         self.last_position = None
         self.start_time = time.time()
+
+
 
         # Control Parameters
         self.Kp = .2;
@@ -62,7 +64,7 @@ class SimpleAgent(object):
 
     def set_flag(self, flag):
 
-        if(self.flag != flag.data):
+        if(self.flag is not None and self.flag != flag.data):
             # Flag Change!
             print("Flag Change!")
             self.flag_change = True
@@ -138,16 +140,19 @@ class SimpleAgent(object):
 
     def check_if_stuck(self):
         if(self.cmd_vel is None or self.my_velocity is None):
+            self.stuck = None
             return False
 
-        if(self.cmd_vel.linear.x > 10):
+        if(self.cmd_vel.linear.x > 15):
             if(self.my_velocity.point.x == 0 and self.my_velocity.point.y == 0):
                 curr_time = time.time()
                 if(self.stuck is None):
                     self.stuck = curr_time
-                elif(curr_time - self.stuck > 3):
+                elif(curr_time - self.stuck > 5): # Need to have been stuck for at least 5 seconds
                     self.stuck = None
                     return True
+            else:
+                self.stuck = None
 
         return False
 
@@ -348,39 +353,13 @@ class SimpleAgent(object):
         else:
             return [start, end]
 
-    def go_to_my_base(self):
-
-        print("Going to my base")
-
-        if (self.my_position is None):
-            return False
-
-        my_pt = copy.deepcopy(self.my_position.point)
-        if(my_pt is None):
-            return False
-
-        target_cell = self.get_cell(self.my_base)
-
-        my_cell = self.get_cell(self.my_position.point)
-        print("I think I am in: " + str(my_cell))
-
-        intermediate_pts = self.path_plan(my_cell, target_cell)
-
-        print("Path Plan: " + str(intermediate_pts))
-
-        for pt in intermediate_pts:
-            self.go_to_position(self.centers[pt], self.end_early)
-
-        self.go_to_position(self.my_base, self.end_early)
-
-
     def go_via_path(self, target):
 
-        if(self.my_position is None):
+        if(self.arena_position is None):
             print("Position invalid, returning")
             return False
 
-        my_pt = copy.deepcopy(self.my_position.point)
+        my_pt = copy.deepcopy(self.arena_position.point)
         my_target = copy.deepcopy(target)
 
         if(my_pt is None or my_target is None):
@@ -398,42 +377,23 @@ class SimpleAgent(object):
 
         print("Path Plan: " + str(intermediate_pts))
 
+        self.reset_position()
+
         for pt in intermediate_pts:
+
             success = self.go_to_position(self.centers[pt], self.end_early)
+            self.reset_position()
             if(not success):
                 return False
 
-        self.go_to_position(my_target, self.end_early)
+        success = self.go_to_position(my_target, self.end_early)
+
+        if (not success):
+            return False
 
         return True
 
-    def go_to_their_base(self):
-
-        print("Going to THEIR base")
-
-        if(self.my_position is None):
-            return False
-
-        my_pt = copy.deepcopy(self.my_position.point)
-        their_base = copy.deepcopy(self.their_base)
-
-        if(my_pt is None or their_base is None):
-            return False
-
-        target_cell = self.get_cell(their_base)
-        my_cell = self.get_cell(my_pt)
-        print("I think I am in: " + my_cell)
-
-        intermediate_pts = self.path_plan(my_cell, target_cell)
-
-        print("Path Plan: " + str(intermediate_pts))
-
-        for pt in intermediate_pts:
-            self.go_to_position(self.centers[pt], self.end_early)
-
-        self.go_to_position(self.their_base, self.end_early)
-
-    def go_to_position(self, target, monitor_function, have_flag = False, allowed_error = 20, dwell_time = 2):
+    def go_to_position(self, target, monitor_function, have_flag = False, allowed_error = 15, dwell_time = 1):
         '''
         Attempts to get Sphero to go to target position, existing out of loop as soon as it is within allowed error
         :param target:
@@ -449,8 +409,7 @@ class SimpleAgent(object):
 
         target_px = util.mm_2_pixel(target)
 
-        print("Target Location: (" + str(target.x) + ", " + str(target.y) + ")")
-        print("Target Pixels  : (" + str(target_px.x) + ", " + str(target_px.y) + ")")
+        print("Going to (" + str(target.x) + ", " + str(target.y) + ") mm, or (" + str(target_px.x) + ", " + str(target_px.y) + ") px")
 
         time_center = time.time()
 
@@ -481,7 +440,7 @@ class SimpleAgent(object):
                     t.angular = Vector3(0, 0, err_heading)
 
                     if(not self.do_movement(t)):
-                        self.fix_heading()
+                        print("Movement Failed, exiting")
                         return False
 
                     at_goal = True
@@ -491,7 +450,7 @@ class SimpleAgent(object):
                 else:
                     secs = time.time() - time_center
                     if(secs > dwell_time):
-                        print("Found goal")
+                        print("Reached Target" + str(target.x) + ", " + str(target.y) + ") mm")
                         return True
                     else:
                         #print("Close to goal")
@@ -514,7 +473,7 @@ class SimpleAgent(object):
             t.linear = Vector3(vel, 0, 0)
             t.angular = Vector3(0, 0, err_heading)
             if(not self.do_movement(t)):
-                self.fix_heading()
+                print("Movement Failed, exiting")
                 return False
 
             rate.sleep()
@@ -526,7 +485,5 @@ if(__name__ == "__main__"):
     b = SimpleAgent('red_sphero', opponent='blue_sphero')
 
     b.setup_ros()
-
-    #b.test_game()
 
     b.play_game()
