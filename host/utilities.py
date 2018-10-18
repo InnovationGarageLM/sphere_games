@@ -129,7 +129,7 @@ def update_arena(game_state, time_elapsed, score, center, base, flag, img):
                 fontColor,
                 lineType)
 
-    left_column = 1080
+    left_column = constants.PICTURE_SIZE[0] - 200
 
     # Position Information
     cv2.putText(arena_img, "Position Info",

@@ -1,10 +1,11 @@
 from geometry_msgs.msg import Point
 import numpy as np
+import os
 
 # Game runs for 5 minutes
 TOTAL_ALLOWED_TIME = 300 # Seconds
 
-SIMULATOR = False
+SIMULATOR = os.getenv('AUTONOMY_SIMULATOR', False)
 
 if(not SIMULATOR):
     # Attribute of camera image

@@ -347,9 +347,9 @@ class SimpleAgent(object):
         elif (end == 'B' and start == 'C'):
             return [start, 'A', end]
         elif (end == 'C' and start == 'B'):
-            return [start, 'A', end]
+            return [start, 'D', end]
         elif (end == 'D' and start == 'A'):
-            return [start, 'B', end]
+            return [start, 'C', end]
         else:
             return [start, end]
 
@@ -393,7 +393,7 @@ class SimpleAgent(object):
 
         return True
 
-    def go_to_position(self, target, monitor_function, have_flag = False, allowed_error = 15, dwell_time = 1):
+    def go_to_position(self, target, monitor_function, have_flag = False, allowed_error = 20, dwell_time = 1):
         '''
         Attempts to get Sphero to go to target position, existing out of loop as soon as it is within allowed error
         :param target:
@@ -418,7 +418,9 @@ class SimpleAgent(object):
         accumulated_error = 0
 
         rate = rospy.Rate(10)
-        while not rospy.is_shutdown() and not monitor_function():
+
+        monitor_results = monitor_function()
+        while not rospy.is_shutdown() and not monitor_results:
 
             if (self.my_position is None or target is None):
                 rate.sleep()
@@ -477,6 +479,10 @@ class SimpleAgent(object):
                 return False
 
             rate.sleep()
+            monitor_results = monitor_function()
+            if(monitor_results):
+                print("Monitor tripped")
+                return False
 
         return True
 
