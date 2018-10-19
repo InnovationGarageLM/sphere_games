@@ -471,6 +471,9 @@ class SimpleAgent(object):
             if(vel > self.MAX_SPEED):
                 vel = self.MAX_SPEED
 
+            if(vel < 0):
+                vel = 0
+
             t = Twist()
             t.linear = Vector3(vel, 0, 0)
             t.angular = Vector3(0, 0, err_heading)
