@@ -6,7 +6,7 @@ import cv2
 import sys
 import constants
 import utilities
-from host.base_tracker import BaseTracker
+from base_tracker import BaseTracker
 
 from std_msgs.msg import Bool, Int16
 from sensor_msgs.msg import CompressedImage, Image
