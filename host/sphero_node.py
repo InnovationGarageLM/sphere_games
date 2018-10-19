@@ -19,7 +19,7 @@ class SpheroNode(object):
         self._connected = False
 
         if (self._color is None):
-            self._color = ColorRGBA(0, 0, 128,0)
+            self._color = ColorRGBA(0, 128, 0, 0)
         elif(self._color == "blue"):
             self._color = ColorRGBA(0, 0, 128, 0)
         elif (self._color == "red"):
