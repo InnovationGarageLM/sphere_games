@@ -1,10 +1,11 @@
 from geometry_msgs.msg import Point
 import numpy as np
+import os
 
 # Game runs for 5 minutes
 TOTAL_ALLOWED_TIME = 300 # Seconds
 
-SIMULATOR = False
+SIMULATOR = os.getenv('AUTONOMY_SIMULATOR', False)
 
 if(not SIMULATOR):
     # Attribute of camera image
@@ -14,8 +15,8 @@ if(not SIMULATOR):
     # arena and camera positions
     ORIGIN_PIXELS = Point(619, 501, 0)
     BASE = {}
-    BASE['red_sphero'] = Point(390, 749, 0)
-    BASE['blue_sphero'] = Point(862, 249, 0)
+    BASE['red_sphero'] = Point(241, 872, 0)
+    BASE['blue_sphero'] = Point(1003, 101, 0)
 
     ARENA_WIDTH_PIXELS = 1021 - 205 # assumed square
     ARENA_WIDTH_MM = 1143           # assumed square
@@ -31,7 +32,7 @@ else:
     BASE['red_sphero'] = Point(1392, 114, 0)
     BASE['blue_sphero'] = Point(514, 981, 0)
 
-    ARENA_WIDTH_PIXELS = 1416 - 498  # assumed square
+    ARENA_WIDTH_PIXELS = 1027 - 212  # assumed square
     ARENA_WIDTH_MM = 1143  # assumed square
     WALL_TO_BASE = 70  # Assume square, and that bases are in corners, fudge factor included
 

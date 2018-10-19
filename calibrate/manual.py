@@ -9,7 +9,7 @@ from getkey import getkey, keys
 
 import rospy
 from std_msgs.msg import Int16, Bool, ColorRGBA
-from geometry_msgs.msg import Point, Twist, Vector3
+from geometry_msgs.msg import Point, Twist, Vector3, PointStamped
 
 class Mover:
     def __init__(self,color):
@@ -17,6 +17,10 @@ class Mover:
         self._direct = self._speed = 0
         self._tail=0
         self._stab=False
+        self._tracker_estimate = None
+
+    def set_tracker_estimate(self, position):
+        self._tracker_estimate = position
 
     def ros_setup(self):
         topic = '/'+self._color+'_sphero'
@@ -27,6 +31,9 @@ class Mover:
         self.pub_heading = rospy.Publisher(topic + '/set_heading', Int16, queue_size=1)
         self.pub_reset   = rospy.Publisher(topic + '/reset_heading', Int16, queue_size=1)
         self.pub_set_pos = rospy.Publisher(topic + '/set_position', Point, queue_size=1)
+
+        self.sub_center = rospy.Subscriber('/arena' + topic + '/center_mm', PointStamped, self.set_tracker_estimate,
+                                           queue_size=1)
 
         # Available for subscription
         #self.sub_odometry = rospy.Subscriber(topic + '/odometry', PointStamped, cb, queue_size=1)
@@ -45,33 +52,46 @@ class Mover:
         if self._speed<0: self._speed=0
         print("Speed now",self._speed)
         self.send_twist()
+
     def direct(self, incr):
         self._direct += incr; self._direct %= 360
         print("Direction now",self._direct)
         self.send_twist()
+
     def color(self):
         pass #need to have a set through which to cycle; not yet implemented
+
     def tail(self):
         self._tail += 50
         if self._tail>255: self._tail=0
         print("Tail brightness",self._tail)
         self.pub_tail.publish(Int16(self._tail))
+
     def stabilize(self):
         self._stab = not self._stab
         print("Stabilize "+("ON" if self._stab else "OFF"))
         self.pub_stab.publish(Bool(self._stab))
+
     def sethead(self):
         print("Set heading to",self._direct,"; also resets tail and stablize")
         self.pub_heading.publish(Int16(self._direct))
         self._stab=True; self._tail=0  #resets both
+
     def reset(self):
         print("Reset heading")
         self.pub_reset.publish(Int16(0)) # value ignored
         self._direct = self._speed = 0
+
     def setpos(self):
-        #No idea what value to use!
-        print("Set position to (0,0)")
-        self.pub_set_pos.publish(Point(0,0,0))  #value in cm
+        '''
+        Sets position to current tracker estimate (assuming not None)
+        :return:
+        '''
+        pt = self._tracker_estimate.point
+        pt.x = int(pt.x)
+        pt.y = int(pt.y)
+        print("Setting position to (" + str(pt.x) + ", " + str(pt.y) + ")")
+        self.pub_set_pos.publish(Point(pt.x,pt.y,0))  #value in mm
 
 #end
 ##############################################################################
