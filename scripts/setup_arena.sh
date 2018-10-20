@@ -21,4 +21,4 @@ echo "Waiting for roscore to come up... you'll see errors while it waits"
 until rosnode info rosout | grep Pid; do sleep 2; done
 
 # Start Tracker
-python ../host/sphero_tracker.py
+python ../host/alternate_tracker.py

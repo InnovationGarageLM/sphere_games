@@ -10,6 +10,8 @@ import host.constants as constants
 
 class SimpleAgent(object):
 
+    _ros_initalized = False
+
     def __init__(self, name = 'default', opponent = 'default'):
 
         # Class Variables
@@ -34,8 +36,6 @@ class SimpleAgent(object):
 
         self.last_position = None
         self.start_time = time.time()
-
-
 
         # Control Parameters
         self.Kp = .2;
@@ -98,9 +98,19 @@ class SimpleAgent(object):
     def set_accel(self, accel):
         self.my_accel = accel.data
 
+    def init_node(self, name = None):
+
+        if(name is None):
+            name = self.name
+
+        rospy.init_node(str(name) + '_simple_agent', anonymous=True)
+
+        SimpleAgent._ros_initalized = True
+
     def setup_ros(self):
 
-        rospy.init_node(str(self.name) + '_simple_agent', anonymous=True)
+        if(SimpleAgent._ros_initalized == False):
+            self.init_node()
 
         prefix = '/' + self.name
         arena_prefix = '/arena/' + self.name
@@ -455,7 +465,7 @@ class SimpleAgent(object):
                 else:
                     secs = time.time() - time_center
                     if(secs > dwell_time):
-                        print("Reached Target" + str(target.x) + ", " + str(target.y) + ") mm")
+                        print("Reached Target (" + str(target.x) + ", " + str(target.y) + ") mm")
                         return True
                     else:
                         #print("Close to goal")
