@@ -7,18 +7,28 @@ TOTAL_ALLOWED_TIME = 300 # Seconds
 
 SIMULATOR = os.getenv('AUTONOMY_SIMULATOR', False)
 
+BASE = {}
+
 if(not SIMULATOR):
     # Attribute of camera image
     PICTURE_SIZE = (1280, 960)
 
     # Sites may need to adjust the following 4 settings to match their
     # arena and camera positions
-    ORIGIN_PIXELS = Point(619, 501, 0)
-    BASE = {}
-    BASE['red_sphero'] = Point(241, 872, 0)
-    BASE['blue_sphero'] = Point(1003, 101, 0)
 
-    ARENA_WIDTH_PIXELS = 1021 - 205 # assumed square
+    # Alex's Arena
+    ORIGIN_PIXELS = Point(620, 494, 0)
+    BASE['red_sphero'] = Point(231, 878, 0)
+    BASE['blue_sphero'] = Point(1009, 91, 0)
+    ARENA_WIDTH_PIXELS = 1044 - 184 # assumed square
+
+    # # Alex's Arena
+    # ORIGIN_PIXELS = Point(620, 494, 0)
+    # BASE['red_sphero'] = Point(231, 878, 0)
+    # BASE['blue_sphero'] = Point(1009, 91, 0)
+    # ARENA_WIDTH_PIXELS = 1044 - 184 # assumed square
+
+
     ARENA_WIDTH_MM = 1143           # assumed square
     WALL_TO_BASE = 70               # Assume square, and that bases are in corners, fudge factor included
 else:
@@ -27,12 +37,13 @@ else:
 
     # Sites may need to adjust the following 4 settings to match their
     # arena and camera positions
+
     ORIGIN_PIXELS = Point(959, 546, 0)
-    BASE = {}
     BASE['red_sphero'] = Point(1392, 114, 0)
     BASE['blue_sphero'] = Point(514, 981, 0)
-
     ARENA_WIDTH_PIXELS = 1027 - 212  # assumed square
+
+
     ARENA_WIDTH_MM = 1143  # assumed square
     WALL_TO_BASE = 70  # Assume square, and that bases are in corners, fudge factor included
 

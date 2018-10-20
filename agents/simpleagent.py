@@ -10,6 +10,8 @@ import host.constants as constants
 
 class SimpleAgent(object):
 
+    _ros_initalized = False
+
     def __init__(self, name = 'default', opponent = 'default'):
 
         # Class Variables
@@ -34,8 +36,6 @@ class SimpleAgent(object):
 
         self.last_position = None
         self.start_time = time.time()
-
-
 
         # Control Parameters
         self.Kp = .2;
@@ -98,9 +98,19 @@ class SimpleAgent(object):
     def set_accel(self, accel):
         self.my_accel = accel.data
 
+    def init_node(self, name = None):
+
+        if(name is None):
+            name = self.name
+
+        rospy.init_node(str(name) + '_simple_agent', anonymous=True)
+
+        SimpleAgent._ros_initalized = True
+
     def setup_ros(self):
 
-        rospy.init_node(str(self.name) + '_simple_agent', anonymous=True)
+        if(SimpleAgent._ros_initalized == False):
+            self.init_node()
 
         prefix = '/' + self.name
         arena_prefix = '/arena/' + self.name
@@ -274,9 +284,9 @@ class SimpleAgent(object):
                     game_end_msg_shown = False
 
                 if(self.flag):
-                    self.go_via_path(self.my_base)
+                    self.go_via_path(self.my_base, self.end_early)
                 else:
-                    self.go_via_path(self.their_base)
+                    self.go_via_path(self.their_base, self.end_early)
                 self.reset_position()
 
             elif(self.game_state == 2): # Game Over
@@ -294,9 +304,9 @@ class SimpleAgent(object):
                     game_end_msg_shown = False
 
                 if (self.flag):
-                    self.go_via_path(self.my_base)
+                    self.go_via_path(self.my_base, self.end_early)
                 else:
-                    self.go_via_path(self.their_base)
+                    self.go_via_path(self.their_base, self.end_early)
                 self.reset_position()
 
             rate.sleep()
@@ -353,7 +363,10 @@ class SimpleAgent(object):
         else:
             return [start, end]
 
-    def go_via_path(self, target):
+    def go_via_path(self, target, monitor_function = None):
+
+        if(monitor_function is None):
+            monitor_function = self.end_early
 
         if(self.arena_position is None):
             print("Position invalid, returning")
@@ -381,12 +394,12 @@ class SimpleAgent(object):
 
         for pt in intermediate_pts:
 
-            success = self.go_to_position(self.centers[pt], self.end_early)
+            success = self.go_to_position(self.centers[pt], monitor_function)
             self.reset_position()
             if(not success):
                 return False
 
-        success = self.go_to_position(my_target, self.end_early)
+        success = self.go_to_position(my_target, monitor_function)
 
         if (not success):
             return False
@@ -452,7 +465,7 @@ class SimpleAgent(object):
                 else:
                     secs = time.time() - time_center
                     if(secs > dwell_time):
-                        print("Reached Target" + str(target.x) + ", " + str(target.y) + ") mm")
+                        print("Reached Target (" + str(target.x) + ", " + str(target.y) + ") mm")
                         return True
                     else:
                         #print("Close to goal")
