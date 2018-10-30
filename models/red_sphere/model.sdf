@@ -3,6 +3,11 @@
   <model name="red_sphere">
   <static>false</static>
     <link name='sphere'>
+      <inertial>
+        <origin rpy="0 0 0" xyz="-0.022 0.0203 0.02917"/>
+        <mass value="0.170"/>
+        <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+      </inertial>
       <pose>0 0 0 0 0 0</pose>
 
       <collision name='sphere_collision'>
