@@ -12,6 +12,8 @@ rosbag filter $BAG_FILE game_data.bag '(topic != "/arena/game_image") and (topic
 
 mv game_images.bag /tmp
 
+export C_DIR=$(pwd)
+
 pushd "$(dirname "$0")"
 
 roslaunch export.launch
@@ -20,8 +22,12 @@ mkdir $TEMP_DIR
 
 mv ~/.ros/frame*.jpg $TEMP_DIR
 
-cd $TEMP_DIR
+pushd $TEMP_DIR
 
-mencoder "mf://*.jpg" -mf type=jpg:fps=10 -o output.mpg -speed 1 -ofps 30 -ovc lavc -lavcopts vcodec=mpeg2video:vbitrate=2500 -oac copy -of mpeg
+mencoder "mf://*.jpg" -mf type=jpg:fps=15 -o output.mpg -speed 1 -ofps 30 -ovc lavc -lavcopts vcodec=mpeg2video:vbitrate=2500 -oac copy -of mpeg
 
-popd
+mv output.mpg $C_DIR
+
+rm -rf *.jpg
+
+cd $C_DIR
