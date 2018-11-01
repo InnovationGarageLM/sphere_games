@@ -22,7 +22,8 @@ vel_actions = np.array(list(range(1, 2))) * 25 # One speed
 # Helper functions
 def set_center(sphere_center):
     global red_center
-    red_center = util.mm_2_pixel(sphere_center.point)
+    # red_center = util.mm_2_pixel(sphere_center.point)
+    red_center = sphere_center
     return
 
 def set_flag(flag_status):
@@ -70,50 +71,78 @@ def parse_dict(unformatted):
 
 def get_heading_and_distance():
     global red_center, red_flag, red_base, blue_base
+    # print(red_flag)
     if red_flag != False: # Have flag, go home
-        target_x = red_base.x
-        target_y = red_base.y
+        # target = util.pixels_2_mm(red_base)
+        target = red_base
     else: # Don't have flag, go to opponent's base
-        target_x = blue_base.x
-        target_y = blue_base.y
-    delta_x = target_x - red_center.x
-    delta_y = target_y - red_center.y
+        # target = util.pixels_2_mm(blue_base)
+        target = blue_base
+    delta_x = target.x - red_center.x
+    delta_y = target.y - red_center.y
+    # print("tx: {}, ty: {}, cx: {}, cy: {}".format(target.x, target.y, 
+    #                                               red_center.x, red_center.y))
     distance = np.sqrt(delta_x ** 2 + delta_y ** 2)
     heading = np.arctan2(delta_y, delta_x)
-    return heading, distance
+    return heading, distance, delta_x, delta_y
 
 # Agent function
 def Q_learning():
     global Q_table, red_twist, yaw_actions, vel_actions
     expectation = 0.
 
-    heading, distance = get_heading_and_distance()
+    heading, distance, dx, dy = get_heading_and_distance()
+    # print(dx, dy)
     current_value = 1 - distance / 1250. # Scale to [1, ~0]
-    heading = int(4 * heading / np.pi)   # Convert to range(8)
-    distance = int(8 * distance / 1250.)  # Convert to range(8)
+    # heading = int(4 * heading / np.pi)   # Convert to range(8)
+    # distance = int(8 * distance / 1250.)  # Convert to range(8)
+
+    # Bin dx and dy
+    bins = 17 # Technically there will be bins * 2 + 1 values
+    dx = int(np.round(bins * dx / 878.))
+    dy = int(np.round(bins * dy / 878.))
+    # print(dx, dy)
+
+    # Assure values don't go out of desired range
+    if dx > bins:
+        dx = bins
+    if dx < -bins:
+        dx = -bins
+    if dy > bins:
+        dy = bins
+    if dy < -bins:
+        dy = -bins
 
     if 'previous_value' in Q_table:
         previous_value = Q_table['previous_value']
         previous_grid = Q_table['previous_grid']
         previous_choice = Q_table['previous_choice']
-        reward = (current_value - previous_value) - 0.005
+        reward = (current_value - previous_value)
         Q_value = Q_table[previous_grid][previous_choice]
-        Q_table[previous_grid][previous_choice] += reward
+        Q_table[previous_grid][previous_choice] = (reward 
+            + Q_table[previous_grid][previous_choice]) / 2
+        print("Distance: {}, Reward: {}".format(distance, reward))
 
-    if (np.random.random() < 0.2
-        or (heading, distance) not in Q_table):
+    mode = 'test' # 'train'
+    if mode == 'train':
+        chance = 0.5
+    else:
+        chance = 0.0
+
+    if (np.random.random() < chance 
+        or (dx, dy) not in Q_table):
         yaw_choice = np.random.choice(yaw_actions)
         vel_choice = np.random.choice(vel_actions)
     else:
-        options = Q_table[(heading, distance)].keys()
+        options = Q_table[(dx, dy)].keys()
         highest = options[0]
         highest_value = -1000
         for option in options:
-            option_value = Q_table[(heading, distance)][option]
+            option_value = Q_table[(dx, dy)][option]
             if option_value > highest_value:
                 highest = option
                 highest_value = option_value
-        if highest_value > 0:
+        if highest_value > 0.01:
             print(highest_value)
             yaw_choice, vel_choice = highest
             expectation = highest_value
@@ -121,12 +150,12 @@ def Q_learning():
             yaw_choice = np.random.choice(yaw_actions)
             vel_choice = np.random.choice(vel_actions)
 
-    if (heading, distance) not in Q_table:
-        Q_table[(heading, distance)] = {}
-    if (yaw_choice, vel_choice) not in Q_table[(heading, distance)]:
-        Q_table[(heading, distance)][(yaw_choice, vel_choice)] = 0.
+    if (dx, dy) not in Q_table:
+        Q_table[(dx, dy)] = {}
+    if (yaw_choice, vel_choice) not in Q_table[(dx, dy)]:
+        Q_table[(dx, dy)][(yaw_choice, vel_choice)] = 0.
     Q_table['previous_value'] = current_value
-    Q_table['previous_grid'] = (heading, distance)
+    Q_table['previous_grid'] = (dx, dy)
     Q_table['previous_choice'] = (yaw_choice, vel_choice)
 
     print("Yaw: {}, Vel: {}, Value: {}".format(yaw_choice, vel_choice,
@@ -139,7 +168,7 @@ def Q_learning():
 def learning_agent():
     # Load any existing agent
     global Q_table, game_over, game_state
-    agent_file = 'test_agent.npy'
+    agent_file = 'chris_17_agent.npy'
     if os.path.isfile(agent_file):
         Q_table = parse_dict(np.load(agent_file))
         print("Loaded red agent from file.")
@@ -150,8 +179,8 @@ def learning_agent():
     rospy.init_node('red_agent', anonymous=True)
 
     pub_red_cmd = rospy.Publisher('/red_sphero/cmd_vel', Twist, queue_size=1)
-    sub_red_center = rospy.Subscriber('/red_sphero/odometry', PointStamped, set_center, queue_size=1)
-    sub_red_flag = rospy.Subscriber('/red_sphero/flag', Bool, set_flag, queue_size=1)
+    sub_red_center = rospy.Subscriber('/arena/red_sphero/center', Point, set_center, queue_size=1)
+    sub_red_flag = rospy.Subscriber('/arena/red_sphero/flag', Bool, set_flag, queue_size=1)
     sub_blue_base = rospy.Subscriber('/arena/blue_sphero/base', Point, set_blue_base, queue_size=1)
     sub_red_base = rospy.Subscriber('/arena/red_sphero/base', Point, set_red_base, queue_size=1)
     sub_game_state = rospy.Subscriber('/arena/game_state', Int16, set_game_state, queue_size=1)
@@ -161,7 +190,7 @@ def learning_agent():
     game_end_msg_shown = False
 
     # Agent control loop
-    rate = rospy.Rate(5) # Hz
+    rate = rospy.Rate(2) # Hz
     while not rospy.is_shutdown():
 
         if (game_state == 0):  # Waiting for game to start
